@@ -1,0 +1,8 @@
+{% extends "login/base.html" %}
+
+{% block formHeadline %}
+  <div class="mb-3"><h3>Einloggen um Meeting zu starten:</h3></div>
+{% endblock formHeadline %}
+{% block register %}
+  <div class="mt-3"><a href="{% url 'register' %}">Account erstellen</a></div>
+{% endblock register %}

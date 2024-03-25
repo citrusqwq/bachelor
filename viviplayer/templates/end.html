@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" 
+    integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <title>Meeting {{ meetingName }} wurde beendet</title>
+</head>
+    
+<body>
+    <div style="text-align: center;" id="main" class="shadow-sm p-3 mb-5 bg-body rounded">
+        <div class="mb-3">
+            <div class="mb-3">
+                <h5>Das Meeting {{ meetingName }} wurde deaktiviert.</h5>
+            </div>
+            <a class="btn btn-primary" href="{% url 'loginMain' %}">Zurück</a>
+        </div>
+    </div>
+    
+</body>

@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ViViPlayer Meeting {{ meetingName }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/videoplayer.css' %}">
+    <link rel="stylesheet" href="{% static 'css/export.css' %}">
+    <link rel="stylesheet" href="{% static 'css/editshots.css' %}">
+    <link rel="stylesheet" href="{% static 'sliderNew/nouislider.css' %}">
+    <link rel="stylesheet" href="{% static 'css/loading.css' %}">
+    <script>
+        /*to prevent Firefox FOUC, this mus be here*/
+        let FF_FOUC_FIX;
+    </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <input type="hidden" id="GLOBAL_MEETING_NAME" value="{{ meetingName }}">
+    <input type="hidden" id="GLOBAL_SCREENSHOT_PATH" value="{{ screenshot_path }}">
+
+    <div class="container-fluid my-container">
+        <div class="row h-85 justify-content-between p-5">
+            <div class="col-md-7" id="videoPlayerContainer">
+
+                <div class="h-70 bg-white video-player align-items-center">
+                    <canvas class="canvasAnno"></canvas>
+                    {% if video %}
+
+                    <video id="meeting-video" src="{{ video }}" style="background-color: #000;" class="video" onloadedmetadata="$(document).ready(function(){afterVideoLoad()});"></video>
+                    <div class="shots-loading" id="shots-loading">
+                        <div class="loading">Loading&#8230;</div>
+                        <div class="loading-text">Lade Shots</div>
+                    </div>
+                    <div class="player-controls border border-primary">
+                        <div class="video-progress">
+                            <div class="video-progress-filled"> </div>
+                        </div>
+                        <button class="play-button" title="Play">▶️</button>
+
+                        <input type="range" class="volume" min="0" max="1" step="0.01" value="1" />
+
+                        <div class="time">
+                            <span class="current">0:00</span> / <span class="duration">0:00</span>
+                        </div>
+
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="grid-container shotBarClass border border-primary" id="shotBar">
+                    <!-- Container where Shots are loaded-->
+                </div>
+                <div class="grid-container mb-3" id="sliderContainer">
+                    <!-- Container for slider-->
+                    <!-- <div id="slider"></div> -->
+                </div>
+                <div class="tools-container shadow-sm p-3 mb-5 bg-body rounded">
+                    {% if isMod %}
+                    <div class="mb-1">
+                        <button class="btn btn-outline-primary btn-sm" onclick="activateEditShotListPopup()"> Shots
+                            bearbeiten </button>
+                        <!-- Button trigger modal -->
+                        <button type="button" id="btnAddAnno"class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
+                            data-bs-target="#annoModal" onclick="addAnnotation()">
+                            Annotation hinzufügen
+                        </button>
+
+                        <button type="button" id="btnAnnoDelete" class="btn btn-outline-primary btn-sm" onclick="deleteAnnotation()">
+                            Annotation löschen
+                        </button>
+                        <!-- Modal -->
+                        <div class="modal fade" id="annoModal" tabindex="-1" role="dialog"
+                            aria-labelledby="annoModalLabel" aria-hidden="true" autofocus>
+                            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header d-block">
+                                        <h5 class="modal-title text-center" id="annoModalLabel">Wo soll die Annotation hinzugefügt werden?</h5>
+                                    </div>
+                                    <div class="modal-body">
+                                        <canvas id="screenShotCanvas"></canvas>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="annoInputModal" tabindex="-1" role="dialog"
+                            aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-body">
+                                        <form>
+                                            <div class="form-group">
+                                                <label for="annoTitelInput">Titel</label>
+                                                <input type="text" class="form-control" id="annoTitelInput">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="annoTextInput">Text</label>
+                                                <textarea class="form-control" id="annoTextInput" name="w3review" rows="5" cols="41"
+                                                    maxlength="205" onkeyup="limitTextarea(this, 5, 205)"></textarea>
+
+                                            </div>
+
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-danger"
+                                            data-bs-dismiss="modal">Abbrechen</button>
+                                        <button type="button" class="btn btn-primary" onclick="annoInputSave()">Ok</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="form-check form-switch mb-1">
+                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckAutostop"
+                            checked />
+                        <label class="form-check-label" for="flexSwitchCheckDefault">
+                            Autostop
+                        </label>
+                    </div>
+                    {% endif %}
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchAnnotationen" checked/>
+                        <label class="form-check-label" for="flexSwitchCheckDefault">
+                            Annotationen
+                        </label>
+                    </div>
+
+                    <!--video upload-->
+                    {% if isMod %}
+                    <hr>
+                    <div>
+
+                        {% if video %}
+                        <form class="h-100" id="upload-form">
+                            {% else %}
+                            <form class="h-100" id="upload-form">
+                                {% endif %}
+                                {% csrf_token %}
+                                {{ form.as_p }}
+                            </form>
+
+                            <div class="row">
+                                <div id="upload-progress-box" class="col-5 not-visible"></div>
+                                <div id="upload-chancel-box" class="col-1 not-visible">
+                                    <button id="upload-chanel-btn" class="btn btn-danger btn-sm">Abbrechen</button>
+                                </div>
+                            </div>
+
+                    </div>
+                    {% endif %}
+
+                </div>
+
+            </div>
+            <div class="col-md-5-40p h-100">
+                <div class="row">
+                    <nav>
+                        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                            <button class="nav-link active" id="nav-us-tab" data-bs-toggle="tab"
+                                data-bs-target="#nav-us" type="button" role="tab" aria-controls="nav-us"
+                                aria-selected="true">
+                                User Story
+                            </button>
+                            <button class="nav-link" id="nav-satz-tab" data-bs-toggle="tab" data-bs-target="#nav-satz"
+                                type="button" role="tab" aria-controls="nav-satz" aria-selected="false">
+                                Satz
+                            </button>
+                            <button class="nav-link" id="nav-umfrage-tab" data-bs-toggle="tab"
+                                data-bs-target="#nav-umfrage" type="button" role="tab" aria-controls="nav-umfrage"
+                                aria-selected="false">
+                                Umfrage
+                            </button>
+                        </div>
+                    </nav>
+                </div>
+                <div class="row h-95 tab-content shadow-sm p-3 mb-5 bg-body rounded" id="nav-tabContent">
+
+                    <div class="tab-pane fade show active bg-white rounded h-100 p-2" id="nav-us" role="tabpanel"
+                        aria-labelledby="nav-us-tab">
+                        <div class="tab-pane fade show active bg-white rounded" id="wrt-usr-stry" style="display:none">
+                            <select id="shot-select">
+                            </select>
+                            <form onsubmit="return false">
+                                Rolle
+                                <input class="form-control" id="role" type="text" placeholder="Als "
+                                    value = "Als " aria-label="default input example">
+                                Funktionalität
+                                <textarea class="form-control" id="capability" rows="3" type="text"
+                                    placeholder="möchte ich" 
+                                    aria-label="default input example">möchte ich </textarea>
+                                Nutzen
+                                <textarea class="form-control form-control-sm mb-2" id="benefit" rows="3" type="text"
+                                    placeholder="um " 
+                                    aria-label=".form-control-sm example">um </textarea>
+
+
+                                <button id="btnClick" type="reset" onclick="replace2()"
+                                    class="btn btn-danger">Abbrechen</button>
+                                <button id="btnClick" type="reset" onclick="userstorysend()"
+                                    class="btn btn-primary">Senden</button>
+                            </form>
+                        </div>
+                        <div class="tab-pane fade show active bg-white rounded" id="update-usr-stry"
+                            style="display:none">
+                            <input type="hidden" id="userstoryID-hide">
+                            <h5 id="user-stories-shot-select-update-headline"></h5>
+                            <select id="shot-select-update">
+                            </select>
+                            <form onsubmit="return false">
+                                Rolle
+                                <input class="form-control" id="role-update" type="text" placeholder="" value=""
+                                    aria-label="default input example">
+                                Funktionalität
+                                <textarea class="form-control" id="capability-update" rows="3" type="text"
+                                    placeholder="" aria-label="default input example"></textarea>
+                                Nutzen
+                                <textarea class="form-control form-control-sm mb-2" id="benefit-update" rows="3" type="text"
+                                    placeholder="" aria-label=".form-control-sm example"></textarea>
+
+                                <button id="btnClick" type="reset" onclick="replace3()"
+                                    class="btn btn-danger">Abbrechen</button>
+                                <button id="update-click" onclick="updatestory()"
+                                    class="btn btn-primary">Senden</button>
+                                {% if isMod %}
+                                <button id="delete-click" class="btn btn-danger"
+                                data-bs-toggle="modal" 
+                                data-bs-target="#confirm-löschen">Löschen</button>
+                                {% endif %}
+                            </form>
+                        </div>
+                        <!--Modal for delete confirm-->
+                        <div class="modal fade" id="confirm-löschen" tabindex="-1" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-right modal-sm modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">User Story löschen?</h5>
+                                    <button type="button" class="btn-close" onclick=" " data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Sie können diese User Story nicht wiederherstellen.
+                                    
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary" onclick=" " type="reset"
+                                        data-bs-dismiss="modal">Nein</button>
+                                    <button id="delete-click" onclick="deletestory()"
+                                    class="btn btn-danger" data-bs-dismiss="modal"
+                                    aria-label="Close">Löschen</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                        <div class="h-95" id="form-hide">
+                            <div class="accordion overflow-auto" style="height:90%" id="user-stories-accordion"></div>
+                            <button id="btnClick" onclick="replace1()"
+                                class="btn btn-outline-primary mt-3 w-100">Hinzufügen</button>
+                        </div>
+
+                    </div>
+                    <div class="tab-pane fade show bg-white rounded h-100 p-2" id="nav-satz" role="tabpanel"
+                        aria-labelledby="nav-satz-tab">
+                        <div class="tab-pane fade show active bg-white rounded" id="wrt-satz" style="display:none">
+                            <select id="shot-select-satz">
+                            </select>
+                            <form onsubmit="return false">
+                                Satz
+                                <form onsubmit="return false">
+                                    <textarea class="form-control mb-2" placeholder="Aktiver eindeutiger Satz" id="satzText"
+                                        name="textfield" rows="10"></textarea>
+                                    <button type="reset" onclick="satzreplace2()"
+                                        class="btn btn-danger">Abbrechen</button>
+                                    <input id="sendSatz" type="reset" type="button" onclick="satzsend();"
+                                        class="btn btn-primary" value="Senden" />
+                                </form>
+                        </div>
+                        <div class="tab-pane fade show active bg-white rounded" id="update-satz" style="display:none">
+                            <h5 id="satz-shot-select-update-headline"></h5>
+                            <select id="shot-select-update-satz"></select>
+                            <input type="hidden" id="satzID-hide">
+                            <form onsubmit="return false">
+                                Satz
+                                <form onsubmit="return false">
+                                    <textarea class="form-control mb-2" placeholder="" id="satz-update" name="textfield"
+                                        rows="10"></textarea>
+                                    <button id="btnClick" type="reset" onclick="satzreplace3()"
+                                        class="btn btn-danger">Abbrechen</button>
+                                    <button id="update-click" onclick="updatesatz()"
+                                        class="btn btn-primary">Senden</button>
+                                    {% if isMod %}
+                                    <button id="delete-click"  class="btn btn-danger"
+                                        data-bs-toggle="modal"  data-bs-target="#confirm-löschen-satz">Löschen</button>
+                                    {% endif %}
+                                </form>
+                        </div>
+                         <!--Modal for Satz delete confirm-->
+                         <div class="modal fade" id="confirm-löschen-satz" tabindex="-1" aria-labelledby="exampleModalLabel"
+                         aria-hidden="true">
+                         <div class="modal-dialog modal-dialog-right modal-sm modal-dialog-centered">
+                             <div class="modal-content">
+                                 <div class="modal-header">
+                                     <h5 class="modal-title">Satz löschen?</h5>
+                                     <button type="button" class="btn-close" onclick=" " data-bs-dismiss="modal"
+                                         aria-label="Close"></button>
+                                 </div>
+                                 <div class="modal-body">
+                                     Sie können diesen Satz nicht wiederherstellen.
+                                     
+                                 </div>
+                                 <div class="modal-footer">
+                                     <button type="button" class="btn btn-primary" onclick=" " type="reset"
+                                         data-bs-dismiss="modal">Nein</button>
+                                     <button id="delete-click" onclick="deletesatz()"
+                                     class="btn btn-danger" data-bs-dismiss="modal"
+                                     aria-label="Close">Löschen</button>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+
+
+                        <div id="satz-form-hide" class="h-95">
+                            <div class="accordion overflow-auto" style="height:90%" id="satz-accordion"></div>
+                            <button id="btnClick" onclick="satzreplace1()"
+                                class="btn btn-outline-primary mt-3 w-100">Hinzufügen</button>
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="tab-pane fade bg-white rounded h-100 p-2" id="nav-umfrage" role="tabpanel"
+                        aria-labelledby="nav-umfrage-tab">
+                        {% if isMod %}
+
+                        <div class="tab-pane fade show active bg-white rounded h-100" id="wrt-umfrage"
+                            style="display:none">
+                            <select id="shot-select-umfrage">
+                            </select>
+                            <form>
+                                <strong>Frage</strong>
+
+                                <textarea class="form-control " placeholder="frage Schreiben" id="frageText"
+                                    name="textfield" rows="2"></textarea>
+                            </form>
+                            <strong>Antworten</strong>
+                            <form class="h-50" onsubmit="return false">
+
+                                <div class="overflow-auto h-70">
+                                    <ul name="list_box_name[]" id="optionlist" class="list-group overflow-auto h-100 "
+                                        size="number_of_options" multiple="multiple">
+                                        <li id="op1" class="list-group-item" value="ja"> ja<button
+                                                onclick="remoption(this.parentNode)" id="btnClick" type="reset"
+                                                class="btn btn-danger space-bt">Löschen</button></li>
+                                        <li id="op2" class="list-group-item" value="eher ja"> eher ja <button
+                                                onclick="remoption(this.parentNode)" id="btnClick" type="reset"
+                                                class="btn btn-danger space-bt">Löschen</button></li>
+                                        <li id="op3" class="list-group-item" value="eher nein">eher nein<button
+                                                onclick="remoption(this.parentNode)" id="btnClick" type="reset"
+                                                class="btn btn-danger space-bt">Löschen</button></li>
+                                        <li id="op4" class="list-group-item" value="nein">nein<button
+                                                onclick="remoption(this.parentNode)" id="btnClick" type="reset"
+                                                class="btn btn-danger space-bt">Löschen</button></li>
+
+                                    </ul>
+                                </div>
+                                <button id="opClick" style="width: 100%" onclick=" " data-bs-toggle="modal"
+                                    data-bs-target="#option" class="btn btn-primary">Hinzufügen</button>
+                            </form>
+                            <form class="but-bottom">
+                                <button type="reset" onclick="umfragereplace2()"
+                                    class="btn btn-danger but-bottom">Abbrechen</button>
+                                <button id="sendSatz" type="reset" type="button" onclick="umfragesend()"
+                                    class="btn btn-primary but-bottom">Senden</button>
+                            </form>
+                        </div>
+                        {% endif %}
+                        <div id="umfrage-form-hide" class="h-95">
+
+                            <div class="accordion overflow-auto" style="height:90%" id="umfrage-accordion"></div>
+
+                            {% if isMod %}
+                                <button id="btnClick" onclick="umfragereplace1()"
+                                    class="btn btn-outline-primary mt-3 w-100">Hinzufügen</button>
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="modal fade" id="option" tabindex="-1" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-right modal-sm modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">neue Antwort</h5>
+                                    <button type="button" class="btn-close" onclick="clearop()" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <textarea class="form-control" placeholder="" id="new-option" name="textfield"
+                                        rows="1"></textarea>
+
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary" onclick="addoption()" type="reset"
+                                        data-bs-dismiss="modal">Speichern</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Export&End-->
+                <div id="ee-container">
+
+                    {% if isMod %}
+                    <!--invite info-->
+                    <div class="dropup">
+                        <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown"
+                            data-bs-auto-close="false" aria-expanded="false">
+                            Einladen
+                        </button>
+                        <div class="dropdown-menu p-3" style="min-width: 450px;">
+                            <div class="mb-2 row" style="align-items: center;">
+                                <div class="col-auto">
+                                    <label for="link"
+                                        class="col-form-label">Link&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                                </div>
+                                <div class="col-auto">
+                                    <input class="form-control form-control-sm" type="text" value="" id="invite_url"
+                                        disabled readonly>
+                                </div>
+                                <div class="col-auto">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="copyUrl()" id="invite_url_button">Kopieren</button>
+                                </div>
+                            </div>
+
+                            <div class="mb-2 row" style="align-items: center;">
+                                <div class="col-auto">
+                                    <label for="link" class="col-form-label">Passwort</label>
+                                </div>
+                                <div class="col-auto">
+                                    <input class="form-control form-control-sm" type="text" value="" id="invite_pwd"
+                                        disabled readonly>
+                                </div>
+                                <div class="col-auto">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="copyPwd()" id="invite_pwd_button">Kopieren</button>
+                                </div>
+                            </div>
+                            <hr class="dropdown-divider">
+
+                            <div class="row" style="width: auto;">
+                                <form id="sendMailForm">
+                                    {% csrf_token %}
+                                    <label>E-Mail Adressen der Teilnehmer:</label>
+                                    <textarea class="form-control mb-1" name="emaillist" rows="3"
+                                        placeholder="Mail Addressen an die Einladung geschickt wird.&#10Eine E-Mail Adresse pro Zeile"></textarea>
+                                    <button type="submit" class="btn btn-primary btn-sm">E-Mail versenden</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <button class="btn btn-primary meeting_Exportieren" onclick="activateExportWindow()"> Exportieren
+                    </button>
+                
+                    
+                        <button class="btn btn-danger" data-bs-toggle="modal" 
+                         data-bs-target="#confirm-beenden">Meeting beenden</button>
+                    
+                    {% endif %}
+                    {%if not isMod%}
+                        <button type="submit" class="btn btn-danger" data-bs-toggle="modal" 
+                        data-bs-target="#confirm-verlassen">Meeting verlassen</button>
+                
+                    {% endif %}
+
+                </div>
+
+            </div>
+        
+        </div>
+        <div class="modal fade modal-backdrop-bg" id="confirm-beenden" tabindex="-1" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog modal-dialog modal-sm modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Meeting beenden?</h5>
+                                    <button type="button" class="btn-close" onclick=" " data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Das Meeting wird für alle beendet.
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary" onclick=" " type="reset"
+                                        data-bs-dismiss="modal">Nein</button>
+                                        <form action="end" method="post">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger">Meeting beenden</button>
+                                        </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                  
+                    <div class="modal fade modal-backdrop-bg" id="confirm-verlassen" tabindex="-1" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog modal-dialog modal-sm modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Meeting verlassen?</h5>
+                                    <button type="button" class="btn-close" onclick=" " data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Zum Wiederbeitreten benutzen Sie den Link und das Passwort erneut. 
+                                    
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary" onclick=" " type="reset"
+                                        data-bs-dismiss="modal">Nein</button>
+                                        <form action="leave" method="post">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger">Meeting verlassen</button>
+                                        </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+        {% if isMod %}
+        <!-- export window popup    -->
+        <iframe id="download_file" style="display:none;"></iframe>
+        <div class="export-window" id="exportWindow">
+
+            <div class="export-window-left">
+                <div class="btn-group mb-3" role="group" aria-label="Basic example">
+                    <button type="button" class="btn btn-outline-primary" id="export-nav-userstory" onclick="exportChangeTabs('userstory')">User Story</button>
+                    <button type="button" class="btn btn-outline-primary" id="export-nav-satz" onclick="exportChangeTabs('satz')">Satz</button>
+                </div>
+
+                <div class="export-window-list-userstory active" id="export-window-list-userstory">
+                    <ul class="export-window-list-userstory active" id="export-window-list-userstory"> </ul>
+                </div>
+                <div class="export-window-list-satz" id="export-window-list-satz">
+                    <ul class="export-window-list-satz active"> </ul>
+                </div>
+            </div>
+
+
+            <div class="export-window-edit-content">
+                <div id="export-content-work-info"> Zum Anzeigen einer Vorschau oder zum Bearbeiten, klicke auf einen der Storys oder Sätze in der linken Liste. </div>
+                <div class="content-container mb-2" id="export-content" style="display: none;">
+                    <b class="export-window-edit-content-shotid" id="export-window-edit-content-shotid"> </b>
+                    <p>Content</p>
+                    <textarea class="export-window-text-field content1" id="export-window-content-1"></textarea>
+                    <textarea class="export-window-text-field content2" id="export-window-content-2"></textarea>
+                    <textarea class="export-window-text-field content3" id="export-window-content-3"></textarea>
+                    <button type="button" class="btn btn-success btn-sm" style="width: fit-content; margin-top: 5px"
+                        onclick="safeData()"> Speichern </button>
+                </div>
+
+                <div class="screenshot-container">
+                    <b id="screenshot-shot-id"> </b>
+                    <div class="export-window-screenshots-edit">
+                        <image class="export-window-shot-screenshot" id="export-window-shot-screenshot"></image>
+                        <div id="change-screenshot-button"></div>
+                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                            data-bs-target="#exportScreenshotModal" id="export-window-screenshot-change"
+                            style="height: fit-content; display: none;"> Aktuellen Screenshot ändern </button>
+                    </div>
+
+                </div>
+                
+                <div class="export-button-container">
+                    <div style="bottom: 0; justify-content: space-between; width: 100%;">
+                        <button class="btn btn-danger" onclick="deactivateExportWindow()"> Abbrechen</button>
+                        <button type="button" class="btn btn-primary" onclick="startDownload('odt')"> Exportieren als
+                            odt</button>
+                        <button type="button" class="btn btn-primary" onclick="startDownload('csv')"> Exportieren als
+                            csv</button>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="exportScreenshotModal" tabindex="-1" aria-labelledby="modalTitle"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitle">Shot</h5>
+                        <input type="hidden" id="export-screenshot-change-currentshotid"
+                            name="export-screenshot-change-currentshotid" value="">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="explain"> Um einen Screenshot zu ändern, benutze den Slider und Knöpfe um zur gewünschte Stelle im Video zu gelangen und drücke Speichern.</div>
+                            <video id="export-screenshot-change" width="100%"  muted> </video>
+                            <div id="export-screenshot-change-video-controls">
+                                <input type="range" id="export-screenshot-change-video-timeline" step="0.5" value="" oninput="changeTimestamp(this.value)" onchange="changeTimestamp(this.value)" style="width: 100%;">
+                                <div style="display:flex; justify-content: space-between; width: 100%;"> 
+                                    <output name="timestampmin" id="timesamp-min"> </output>
+                                    <output name="timestamp" id="export-screenshot-change-video-timeline-timestamp" >0 </output>
+                                    <output name="timestampmin" id="timesamp-max"> </output>
+                                </div>
+                                <button class="btn btn-primary" id="screen-change-skip-video-backward" onclick="changeTimeScreenshotExport('backward')"> &#171; </button>
+                                <button class="btn btn-primary" id="screen-change-skip-video-forward" onclick="changeTimeScreenshotExport('forward')"> &#187; </button>
+                            </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="button" class="btn btn-success" data-bs-dismiss="modal" onclick="sendScreenshotSave()">Speichern</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="overlay-export-popup"> </div>
+        <!-- end of export window -->
+
+        <!-- shot edit list popup -->
+        <div class="shot-edit-list-popup" id="shot-edit-list-popup">
+            <ul id="shot-list" class="shot-list"> </ul>
+            <div class="shot-edit-popup" id="shot-edit-popup">
+                <div class="mb-2" id="current-shot-number"> Shot:</div>
+                <div class="mb-3 edit-name">
+                    <label>Name:</label>
+                    <div><input style="width: fit-content;" type="text" class="form-control" id="edit-name"></input>
+                    </div>
+                    <div><button class="btn btn-outline-primary btn-sm" onclick="sendShotName()">Ändern</button></div>
+                </div>
+                <div class="btn-group mb-3" role="group">
+                    <button type="button" class="btn btn-outline-primary" onclick="deleteCurrentShot()">Shot
+                        löschen</button>
+                    <button type="button" class="btn btn-outline-primary" onclick="insertShot('after')"
+                        data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="Der aktuelle Shot wird halbiert um einen neuen Shot zu erzeugen.&#10;Sie können später per Slider die Länge der Shots anpassen.">Shot
+                        einfügen</button>
+                </div>
+                <button class="btn btn-danger" onclick="deactivateShotEditPopup()"> Abbrechen </button>
+            </div>
+            <div class="shot-edit-list-popup-bottom">
+                <button class="btn btn-danger" onclick="deactivateEditShotListPopup()"> Abbrechen </button>
+            </div>
+        </div>
+        <div class="annotations-popup" id="annotations-popup">
+            <button class="annotation-popup-exit" id="annotation-popup-exit" onclick="deactivateShotAnnotation()">
+                Abbrechen
+            </button>
+        </div>
+        <div id="overlay-shot-edit-popup"></div>
+
+        <!-- end of shot edit list popup -->
+        <!-- endif of isMod export, edit shot-->
+        {% endif %}
+
+        <!--Umfrage toast-->
+        <!--https://getbootstrap.com/docs/5.1/components/toasts/-->
+
+
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 7">
+            <div id="umfrageToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true"
+                data-bs-autohide="false">
+                <div class="toast-header">
+                    <strong class="me-auto">Umfrage</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body" id="umfrage-toast-body">
+                    <!--question&options will be shown here-->
+                </div>
+            </div>
+        </div>
+
+        <div class="position-fixed top-0 end-0 p-3" style="z-index: 1">
+            <div id="umfrageToast-control" class="toast" role="alert" aria-live="assertive" aria-atomic="true"
+                data-bs-autohide="false">
+                <div class="toast-header">
+                    <strong class="me-auto">live Abstimmung</strong>
+                    {%if not isMod%}
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    {%endif%}
+                </div>
+                <div class="toast-body" id="umfrage-toast-body-control">
+                    <!--question&options will be shown here-->
+
+
+                </div>
+                {%if not isMod%}
+                <button class="btn btn-danger btn-sm" style="display:none" id="UmfrageBeenden" onclick=""> Beenden
+                </button>
+                <button class="btn btn-outline-primary btn-sm" style="display:none" id="ergebnisZeigen" onclick="">
+                    Veröffentlichen </button>
+
+                {%endif%}
+                {%if isMod%}
+                <div style="margin-left: 10px; margin-bottom: 5px;">
+                    <button class="btn btn-danger btn-sm" id="UmfrageBeenden" onclick=""> Beenden </button>
+
+                    <button class="btn btn-outline-primary btn-sm" id="ergebnisZeigen" onclick=""> Veröffentlichen </button>
+                </div>
+                
+                {%endif%}
+            </div>
+        </div>
+
+
+        <!--Error Toast-->
+        <div id="error-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 11">
+            <div id="error-toast" class="toast align-items-center bg-danger text-white border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+                <div class="d-flex">
+                <div class="toast-body" id="error-toast-body">
+                This is a toast message.
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+         
+        </div>
+    </div>
+    <!--save csrft token in html to make it accessible for javascript-->
+    <script type="text/javascript"> window.CSRF_TOKEN = "{{ csrf_token }}"; </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous">
+        </script>
+
+    <script src="{% static 'js/init.js' %}"></script>
+    <script src="{% static 'js/satz.js' %}"></script>
+    <script src="{% static 'js/userstory.js' %}"></script>
+    <script src="{% static 'js/umfrage.js' %}"></script>
+    <script src="{% static 'js/shotUser.js' %}"></script>
+    <script src="{% static 'js/shotlist.js' %}"></script>
+    <script src="{% static 'js/videoUser.js' %}"></script>
+    <script src="{% static 'js/annotationUser.js' %}"></script>
+    <script src="{% static 'js/loading.js' %}"></script>
+    <script src="{% static 'js/receive.js' %}"></script>
+    {% if isMod %}
+    <script src="{% static 'js/inviteCopy.js' %}"></script>
+    <script src="{% static 'js/invite.js' %}"></script>
+    <script src="{% static 'js/uploadProgressBarMod.js' %}"></script>
+    <script src="{% static 'js/exportMod.js' %}"></script>
+    <script src="{% static 'js/shotMod.js' %}"></script>
+    <script src="{% static 'js/editshotsMod.js' %}"></script>
+    <script src="{% static 'js/videoMod.js' %}"></script>
+    <script src="{% static 'js/annotationMod.js' %}"></script>
+    <script src="{% static 'sliderNew/wNumb.js' %}"></script>
+    <script src="{% static 'sliderNew/nouislider.js' %}"></script>
+    {% endif %}
+</body>
+
+</html>

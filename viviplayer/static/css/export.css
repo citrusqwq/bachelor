@@ -1,0 +1,176 @@
+/*
+    styling for the export button and popup window
+*/
+.meeting-Exportieren{
+    cursor: pointer;
+    background-color: grey;
+    color: black;
+    width: 8rem;
+    height: 2rem;
+}
+.export-window{
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: 200ms ease-in-out;
+    border: 2px solid black;
+    border-radius: 10px;
+    z-index: 10;
+    background-color: white;
+    width: 70vw;
+    height: 90vh;
+    opacity: 0;
+    pointer-events: none;
+    overflow: none;
+    padding: 10px;
+}
+.export-window.active{
+    opacity: 1;
+    pointer-events: all;
+}
+.export-window-left{
+    padding: 10px;
+    background-color: rgb(214, 224, 236);
+    overflow: auto;
+}
+.export-window-tab {
+    display: flex;
+    flex: 1;
+    cursor: pointer;
+    width: 100%;
+    padding: 10px;
+}
+.export-window-tab-content{
+    margin-left: 20px;
+    margin-right: 20px;
+}
+[data-tab-content]{
+    display: none;
+}
+.active[data-tab-content]{
+    display: block;
+}
+.export-window-user-story{
+    display: flex;
+    flex: 1;
+    height: 2rem;
+}
+.export-window-sentence{
+    display: flex;
+    flex: 1;
+    height: 2rem;
+}
+.export-window-edit-content{
+    display: flex;
+    flex-direction: column;
+    flex: 3;
+    height: 100%;
+    margin-right: 5px;
+}
+.export-window-text-field{
+    display: block;
+    resize: none;
+    height: 4rem;
+    width: 100%;
+}
+.export-window-button-bottom{
+    position: fixed;
+    margin-top: 1em;
+    bottom: 0;
+}
+.export-window-close-button{
+    background-color: red;
+    color: white;
+    width: 200px;
+    height: 30px;
+    cursor: pointer;
+}
+.export-window-confirm-export{
+    background-color: green;
+    color: white;
+    height: 30px;
+    cursor: pointer;
+}
+#overlay-export-popup{
+    position: fixed;
+    opacity: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, .5);
+    pointer-events: none;
+}
+#overlay-export-popup.active{
+    opacity: 1;
+    pointer-events: all;
+}
+.export-safe-change{
+    position: relative;
+    width: fit-content;
+    height: fit-content;
+    margin-bottom: 10px;
+}
+.export-window-left{
+    display: flex;
+    flex-direction: column;
+}
+.export-window-list-satz{
+    display: flex;
+    opacity: 0;
+    display: none;
+    flex-direction: column;
+}
+.export-window-list-satz.active{
+    opacity: 1;
+    display: block;
+}
+.export-window-list-userstory{
+    opacity: 0;
+    display: none;
+}
+.export-window-list-userstory.active{
+    opacity: 1;
+    display: block;
+}
+.export-window-nav{
+    margin-bottom: 10px;
+}
+.export-window-list-userstory{
+    list-style: none;
+}
+.export-window-list-satz{
+    list-style: none;
+}
+.export-window-shot-screenshot{
+    display: flex;
+    object-fit: contain;
+    width: 30vw;
+    height: 30vh;
+    border: 0;
+    margin: 0;
+}
+.export-window-screenshots-edit{
+    display:flex;
+    gap: 2px;
+    align-items: flex-end;
+}
+.export-window-change-screenshot{
+    position: relative;
+    height: fit-content;
+    width: fit-content;
+    top: 50%;
+}
+.export-button-container{
+    position: absolute;
+    bottom: 10px;
+    right: 16px;
+    width: auto;
+}
+/*
+End of styling for the export button and popup window
+*/

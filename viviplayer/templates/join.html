@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" 
+    integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <title>Join Meeting {{ meetingName }}</title>
+</head>
+
+<body>
+    <div id="main" class="shadow-sm p-3 mb-5 bg-body rounded">
+        <div class="mb-3"><h3>Meeting {{ meetingName }}</h3></div>
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label">Geben Sie das Meeting Passwort ein</label>
+              <input type="password" class="form-control" name="password">
+              <br>
+              <input type="submit" class="btn btn-primary" value="Beitreten">
+            </div>
+        </form>
+
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        
+    </div>
+
+</body>
+</html>

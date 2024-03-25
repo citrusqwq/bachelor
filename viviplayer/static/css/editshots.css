@@ -1,0 +1,120 @@
+.shot-edit-list-popup{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 1px solid black;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: 200ms ease-in-out;
+    border: 2px solid black;
+    border-radius: 10px;
+    z-index: 10;
+    background-color: white;
+    height: 80vh;
+    width: 30vw;
+    opacity: 0;
+    pointer-events: none;
+    padding: 20px;
+}
+.shot-edit-list-popup.active{
+    opacity: 1;
+    pointer-events: all;
+}
+.shot-edit-list-popup-bottom{
+    display: flex;
+    align-self: flex-end;
+    position: relative;
+}
+.shot-edit-list-popup-exit{
+    background-color: red;
+    width: fit-content;
+    height: fit-content;
+}
+.shot-edit-popup{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    border: 1px solid black;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: 200ms ease-in-out;
+    border: 2px solid black;
+    border-radius: 10px;
+    z-index: 10;
+    background-color: white;
+    width: auto;
+    height: auto;
+    opacity: 0;
+    pointer-events: none;
+    padding: 20px;
+}
+.shot-edit-popup.active{
+    opacity: 1;
+    pointer-events: all;
+}
+.current-shot-number{
+    margin: 1rem;
+}
+.edit-shot{
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 1em 2rem 1em 2rem;
+}
+.edit-name {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+.shot-name{
+    flex: 1;
+    margin-top: 0.5em;
+}
+#overlay-shot-edit-popup{
+        position: fixed;
+        opacity: 0;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, .5);
+        pointer-events: none;
+    }
+#overlay-shot-edit-popup.active{
+    opacity: 1;
+    pointer-events: all;
+}
+.shot-list{
+    width: auto;
+    overflow: auto;
+}
+.annotations-popup{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    border: 1px solid black;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: 200ms ease-in-out;
+    border: 2px solid black;
+    border-radius: 10px;
+    z-index: 10;
+    background-color: white;
+    width: 20rem;
+    height: 40rem;
+    max-width: 80%;
+    max-height: 80%;
+    opacity: 0;
+    pointer-events: none;
+}
+.annotations-popup.active{
+    opacity: 1;
+    pointer-events: all;
+}

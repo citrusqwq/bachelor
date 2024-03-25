@@ -1,0 +1,27 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "==3.2.9"
+psycopg2-binary = ">=2.8"
+djangorestframework = "*"
+bcrypt = "*"
+channels = "*"
+scenedetect = "*"
+ffmpeg = "*"
+opencv-python = "*"
+django-cleanup = "*"
+odfpy = "*"
+uvicorn = {extras = ["standard"], version = "*"}
+gunicorn = "*"
+channels-redis = "*"
+django-redis = "*"
+django-admin-rangefilter = "*"
+
+[dev-packages]
+yapf = "*"
+
+[requires]
+python_version = "3.9"
