@@ -1,3 +1,8 @@
+<img width="617" alt="Screenshot 2024-03-25 at 12 35 31" src="https://github.com/citrusqwq/bachelor/assets/66939444/75573b97-555e-4ec2-a55c-b899842cbfca">
+
+
+
+
 # Raha and Her Younger Sister Baran
 Detecting and correcting erroneous values are key steps in data cleaning. Error detection/correction systems usually require a user to provide input configurations in the form of integrity constraints or statistical parameters. However, providing a complete, yet correct, set of configurations for each new dataset is tedious and error-prone, as the user has to know about both the dataset and the data cleaning system upfront.
 
