@@ -1,3 +1,14 @@
+
+<img width="1064" alt="Screenshot 2024-03-25 at 12 25 26" src="https://github.com/citrusqwq/bachelor/assets/66939444/18bb2255-02d3-47d4-95b2-efe93d428525">
+<img width="1070" alt="Screenshot 2024-03-25 at 12 26 00" src="https://github.com/citrusqwq/bachelor/assets/66939444/944d2666-587d-4bfe-a615-dfc3adccbb39">
+<img width="1072" alt="Screenshot 2024-03-25 at 12 26 35" src="https://github.com/citrusqwq/bachelor/assets/66939444/cbcce288-d150-4ed0-9687-2c2db11eefb9">
+<img width="1073" alt="Screenshot 2024-03-25 at 12 26 19" src="https://github.com/citrusqwq/bachelor/assets/66939444/8fde5b6a-6311-4130-98ac-2da9449a64d3">
+<img width="1066" alt="Screenshot 2024-03-25 at 12 27 52" src="https://github.com/citrusqwq/bachelor/assets/66939444/78559a44-174e-4eef-be40-cac0f4aeb905">
+<img width="1062" alt="Screenshot 2024-03-25 at 12 28 33" src="https://github.com/citrusqwq/bachelor/assets/66939444/8c5ebc41-33ac-4406-bfe9-609fbfa5879e">
+<img width="1067" alt="Screenshot 2024-03-25 at 12 28 47" src="https://github.com/citrusqwq/bachelor/assets/66939444/fa21d3e5-cf7b-47dc-8731-b523f4cd6927">
+
+
+
 # ViViPlayer-1
 
 ## Installation
