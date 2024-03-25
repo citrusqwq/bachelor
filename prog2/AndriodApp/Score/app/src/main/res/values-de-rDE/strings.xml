@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Spielstand</string>
+    <string name="textview1">Team A</string>
+    <string name="textview2">Team B</string>
+    <string name="undoButton">undo</string>
+    <string name="resetButton">reset</string>
+</resources>

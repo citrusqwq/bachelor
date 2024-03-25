@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">QuizActivity</string>
+    <string name="question">Loading the question...</string>
+    <string name="answer1"> </string>
+    <string name="answer2"> </string>
+    <string name="answer3"> </string>
+    <string name="answer4"> </string>
+    <string name="Hint">hint</string>
+</resources>
